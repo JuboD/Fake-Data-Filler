@@ -1,0 +1,17 @@
+{
+  "manifest_version": 3,
+  "name": "Fake Data Filler",
+  "version": "1.0.1",
+  "description": "Generate realistic placeholder data and fill web forms in one click.",
+  "action": {
+    "default_title": "Fake Data Filler",
+    "default_popup": "popup.html"
+  },
+  "content_scripts": [
+    {
+      "matches": ["http://*/*", "https://*/*"],
+      "js": ["content.js"],
+      "run_at": "document_idle"
+    }
+  ]
+}
