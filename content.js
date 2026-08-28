@@ -1,5 +1,61 @@
-const fieldMatchers=[["firstName","identity",/(?:first.?name|given.?name)/i],["lastName","identity",/(?:last.?name|family.?name|surname)/i],["username","identity",/(?:user.?name|login.?name|handle)/i],["email","contact",/(?:e-?mail|email.?address)/i],["phone","contact",/(?:phone|mobile|tel(?:ephone)?|contact.?number)/i],["password","security",/(?:password|passcode)/i],["company","identity",/(?:company|organisation|organization|business)/i],["address","address",/(?:street.?address|address.?line|\baddress\b)/i],["city","address",/(?:city|town)/i],["state","address",/(?:state|province|region)/i],["zip","address",/(?:zip|postal.?code|postcode)/i],["country","address",/(?:country)/i],["website","identity",/(?:website|web.?site|url)/i],["bio","identity",/(?:bio|about.?you|description)/i],["name","identity",/(?:full.?name|your.?name|\bname\b)/i]];
-function descriptor(field){const label=field.labels?.[0]?.innerText||"";return[field.name,field.id,field.type,field.placeholder,field.getAttribute("aria-label"),field.autocomplete,label].filter(Boolean).join(" ")}
-function isVisible(field){const style=getComputedStyle(field),ignored=["hidden","checkbox","radio","button","submit","reset","file"];return !field.disabled&&!field.readOnly&&!ignored.includes(field.type)&&style.display!=="none"&&style.visibility!=="hidden"&&field.getClientRects().length>0}
-function setValue(field,value){if(field instanceof HTMLSelectElement){const option=[...field.options].find(item=>item.value.toLowerCase()===value.toLowerCase()||item.text.trim().toLowerCase()===value.toLowerCase());if(option)value=option.value}const prototype=field instanceof HTMLTextAreaElement?HTMLTextAreaElement.prototype:field instanceof HTMLSelectElement?HTMLSelectElement.prototype:HTMLInputElement.prototype;Object.getOwnPropertyDescriptor(prototype,"value")?.set.call(field,value);field.dispatchEvent(new Event("input",{bubbles:true}));field.dispatchEvent(new Event("change",{bubbles:true}))}
-chrome.runtime.onMessage.addListener((message,_sender,sendResponse)=>{if(message.type!=="FILL_FAKE_DATA")return;let filled=0;document.querySelectorAll("input, textarea, select").forEach(field=>{if(!isVisible(field))return;const matched=fieldMatchers.find(([,group,pattern])=>message.groups.includes(group)&&pattern.test(descriptor(field)));if(!matched)return;setValue(field,message.profile[matched[0]]);filled++});sendResponse({filled})});
+(() => {
+  if (globalThis.__fakeDataFiller) return;
+
+  const fieldMatchers = [
+    ["firstName", "identity", /(?:first.?name|given.?name)/i],
+    ["lastName", "identity", /(?:last.?name|family.?name|surname)/i],
+    ["username", "identity", /(?:user.?name|login.?name|handle)/i],
+    ["email", "contact", /(?:e-?mail|email.?address)/i],
+    ["phone", "contact", /(?:phone|mobile|tel(?:ephone)?|contact.?number)/i],
+    ["password", "security", /(?:password|passcode)/i],
+    ["company", "identity", /(?:company|organisation|organization|business)/i],
+    ["address", "address", /(?:street.?address|address.?line|\baddress\b)/i],
+    ["city", "address", /(?:city|town)/i],
+    ["state", "address", /(?:state|province|region)/i],
+    ["zip", "address", /(?:zip|postal.?code|postcode)/i],
+    ["country", "address", /(?:country)/i],
+    ["website", "identity", /(?:website|web.?site|url)/i],
+    ["bio", "identity", /(?:bio|about.?you|description)/i],
+    ["name", "identity", /(?:full.?name|your.?name|\bname\b)/i]
+  ];
+
+  function descriptor(field) {
+    const label = field.labels?.[0]?.innerText || "";
+    return [field.name, field.id, field.type, field.placeholder, field.getAttribute("aria-label"), field.autocomplete, label]
+      .filter(Boolean).join(" ");
+  }
+
+  function isVisible(field) {
+    const style = getComputedStyle(field);
+    const ignored = ["hidden", "checkbox", "radio", "button", "submit", "reset", "file"];
+    return !field.disabled && !field.readOnly && !ignored.includes(field.type) && style.display !== "none" && style.visibility !== "hidden" && field.getClientRects().length > 0;
+  }
+
+  function setValue(field, value) {
+    if (field instanceof HTMLSelectElement) {
+      const option = [...field.options].find((item) => item.value.toLowerCase() === value.toLowerCase() || item.text.trim().toLowerCase() === value.toLowerCase());
+      if (option) value = option.value;
+    }
+    const prototype = field instanceof HTMLTextAreaElement ? HTMLTextAreaElement.prototype : field instanceof HTMLSelectElement ? HTMLSelectElement.prototype : HTMLInputElement.prototype;
+    Object.getOwnPropertyDescriptor(prototype, "value")?.set.call(field, value);
+    field.dispatchEvent(new Event("input", { bubbles: true }));
+    field.dispatchEvent(new Event("change", { bubbles: true }));
+  }
+
+  function fillMatchingFields(profile, groups) {
+    let filled = 0;
+    document.querySelectorAll("input, textarea, select").forEach((field) => {
+      if (!isVisible(field)) return;
+      const matched = fieldMatchers.find(([, group, pattern]) => groups.includes(group) && pattern.test(descriptor(field)));
+      if (!matched) return;
+      setValue(field, profile[matched[0]]);
+      filled++;
+    });
+    return { filled };
+  }
+
+  globalThis.__fakeDataFiller = fillMatchingFields;
+  chrome.runtime.onMessage.addListener((message, _sender, sendResponse) => {
+    if (message.type === "FILL_FAKE_DATA") sendResponse(fillMatchingFields(message.profile, message.groups));
+  });
+})();
