@@ -1,7 +1,7 @@
 {
   "manifest_version": 3,
   "name": "Fake Data Filler",
-  "version": "1.0.2",
+  "version": "1.0.3",
   "description": "Generate realistic fake data and automatically fill matching web form fields.",
   "permissions": ["activeTab", "scripting"],
   "icons": {

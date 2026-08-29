@@ -4,11 +4,16 @@ A Manifest V3 Chrome extension that creates fake identities locally, then fills 
 
 It supports names, usernames, email addresses, phone numbers, passwords, companies, addresses, city/state/ZIP, website URLs, and bios. You can choose exactly which categories to fill and copy any visible value with one click.
 
-## What's new in 1.0.2
+## What's new in 1.0.3
 
-- **Reliable automatic filling:** the extension now injects its field detector when you press **Fill selected fields**, so it works on already-open webpages without requiring a refresh.
-- **Improved detection:** fills visible text inputs, textareas, and compatible dropdown fields based on their labels, names, IDs, placeholders, and autocomplete hints.
-- **Custom Chrome icon:** uses the included blue database-and-code icon at every Chrome-required size.
+- **Fox identity:** the fox mascot is now used in the popup and as the Chrome toolbar icon at every required size.
+- **Web Store-ready icon sizing:** the 128 × 128 PNG keeps the artwork inside a 96 × 96 safe area with 16 pixels of transparent padding on every side.
+- **Animated theme transitions:** System, Dark, and Day modes switch with a restrained card transition and an animated theme button.
+- **Fox glow effects:** the fox badge and eyes glow when the popup opens, the theme changes, or a fresh identity is generated.
+- **Ambient pixel background:** subtle moving pixels appear behind the cards in every theme, with stronger contrast in Day mode.
+- **Animated identity refresh:** generating new data animates the refresh control and identity card.
+- **Reliable automatic filling:** pressing **Fill selected fields** injects the field detector when needed, including on pages that were already open.
+- **Improved field matching:** visible text inputs, textareas, and compatible dropdowns are detected using labels, names, IDs, placeholders, autocomplete hints, and ARIA labels.
 
 ## Chrome Web Store description
 
@@ -25,6 +30,6 @@ Use the appearance button in the popup header to cycle through **System**, **Dar
 1. Open `chrome://extensions` in Chrome.
 2. Enable **Developer mode**.
 3. Select **Load unpacked** and choose this folder.
-4. Pin **Fake Data Filler**, open a web form, and choose **Fill this page**.
+4. Pin **Fake Data Filler**, open a web form, choose the data categories, and select **Fill selected fields**.
 
 All generated form data stays in the popup and is not transmitted or stored. The selected appearance setting is stored only in the browser.
